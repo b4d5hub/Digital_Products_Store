@@ -1,0 +1,1 @@
+<H1 class="text-xl font-medium">{{$StoreSettings['store_name']}}</H1>

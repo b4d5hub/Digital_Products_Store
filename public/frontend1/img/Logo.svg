@@ -1,0 +1,10 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 85 24" width="85" height="24">
+	<title>Logo-svg</title>
+	<defs>
+		<image  width="73" height="21" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAAAVCAMAAAA94TNiAAAAAXNSR0IB2cksfwAAAVlQTFRFAAAA////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////JdLO7QAAAHN0Uk5TAFTZ/9OiZwYiCdKvYcbN7QOBfCQb5wyuYC12x5OgDSe9qRj3o4d7Q2pF9u4Pu34xEpk8BEL68cpeATTJcJGluNgeKgcTZFjfPeKspluXlnMZcpp/lHlXhB9R/FoVOgqKxGaoixbw3GOOSyVS2za3wDe1nbxtsO8AAAKASURBVHicpZT9b4xBEMe/49C7Kr2Wo5XeSVWvPaIk19DTiLQN0lJRJCKUEJG6v0ZCI0UiXtJIEVVvJU1DQ4sgyBU9zQX10nDHES9XRczu3vPcPk0Q7fwwOzO783lmZ3cfAgsRSUVDGL0wwj5seuOG/7L0nyTHd81N+8pqUgJwfP5/ksgD0umLGCRgtCQb64yPgJM+IfM9xkhyxoQ9DVGMlZRNb7XYDAa6Bu1I/CEnl2gQmP5mJClPRmbSCwtJyE+pZ9GAGDwUYV3wzFyV3897cYkgCsKSJItiyUnELBxgTh+r4qeG630MzO0zScW9mBo3HF9IkJzuR0lfNjxFmvcQWBBK1T//vkkqoUjccn8W3iUxlNI95fvDcYNUStSDZMFZ0SW3eCi7IXcXuJ7MniwuX+bEwm4eyrtIBe2L1fTSq7CcXUWXqgWV10RqXCdVibUVHUARdwyLyCjPn90pp69YSCW9fBiy4ys5ZXm7Tsp5B028lLI9r1ituATUXBa3QMZWtQPV54VVexEofKKT1lzQSauZtBatyqlrgzz6dWc5eFqGNpxh96SwlnH++hadJOo1pCyPfyfcgZpz0nW/VqRNLcDGZhnafEIed7L1ta06SbbHVUXHlUv1IiW97igCGZ3yDHjpbagrkDS3HEGg6Jj8iuXsBHzrYWDHzUDzN5AvrO8W2w+xmvBLmNtsdEDViXrBwc4mK6nhICv/c3lrdu0nBJs0UEOjWYlseJvxAqD+XRaSNrd7n7jjnpj5VIN71egvb1SGLxSIRpQp9jGC5B9/RxlTPsh3x3Pu7qxK9L98kCrO4c7vgHu2aJ3zx1BwIFehvdWcsie1LJjGjbCdEq//NyPxwx9nVOteAAAAAElFTkSuQmCC"/>
+	</defs>
+	<style>
+		tspan { white-space:pre } 
+	</style>
+	<use id="Store copy" href="#img1" x="6" y="2"/>
+</svg>
