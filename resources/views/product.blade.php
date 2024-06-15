@@ -1,3 +1,9 @@
+@php
+    use Illuminate\Support\Str;
+    $descriptionHtml = Str::markdown($product->description);
+@endphp
+
+
 @extends('layouts.app')
 
 @section('single-product-view')
@@ -14,9 +20,9 @@
                         <div class="product-landing-cards">
                             {{-- <h1 class="product-landing-title">{{$product->name}}</h1> --}}
                             <img src="/storage/{{ $product->image }}" alt="Product 1">
-                            <p class="product-landing-description">
-                                {{ $product->description }}
-                            </p>
+                            <div class="product-landing-description">
+                                {!! $descriptionHtml !!}
+                            </div>
                         </div>
                     </div>
 

@@ -6,7 +6,8 @@
         </div>
         <div class="logo-box">
           <a href="/" class="logo">
-            <img src="/frontend1/img/Logo.svg" alt="logo: {{$StoreSettings['store_name']}}">
+            {{-- <img src="/frontend1/img/Logo.svg" alt="logo: {{$StoreSettings['store_name']}}"> --}}
+            <H1 class="product-landing-purchase-itemprice" style=" font-family: Blue-curve; ">{{$StoreSettings['store_name']}}</H1>
           </a>
         </div>
         <div class="items-box">

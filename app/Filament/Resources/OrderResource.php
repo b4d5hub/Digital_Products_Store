@@ -32,7 +32,7 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', '=', 'Completed')->count();
+        return static::getModel()::where('status', '=', 'Pending')->count();
     }
 
 
@@ -44,6 +44,15 @@ class OrderResource extends Resource
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Order Details')
                         ->schema([
+                        
+                            Forms\Components\Select::make('customer_id')
+                            ->relationship('customer','email')
+                            ->columnSpan(1),
+
+                            Forms\Components\Select::make('product_id')
+                                ->relationship('product','name')
+                                ->columnSpan(3),
+
                             Forms\Components\TextInput::make('order_number')
                                 ->default(random_int(100000,9999999))
                                 ->unique(Order::class,'order_number', ignoreRecord: true)
@@ -51,56 +60,56 @@ class OrderResource extends Resource
                                 ->dehydrated()
                                 ->required(),
 
-                            // Forms\Components\Select::make('customer_id')
-                            //     ->relationship('customer','name'),
+                            Forms\Components\TextInput::make('quantity'),
+
+                            Forms\Components\TextInput::make('unit_price'),
 
                             Forms\Components\Select::make('status')
-                                ->options([
-                                    'Pending' => OrderStatusEnum::PENDING->value,
-                                    'Processing' => OrderStatusEnum::PROCESSING->value,
-                                    'Completed' => OrderStatusEnum::COMPLETED->value,
-                                    'Declined' => OrderStatusEnum::DECLINED->value,
-                                ]),
+                            ->options([
+                                'Pending' => OrderStatusEnum::PENDING->value,
+                                'Processing' => OrderStatusEnum::PROCESSING->value,
+                                'Completed' => OrderStatusEnum::COMPLETED->value,
+                                'Declined' => OrderStatusEnum::DECLINED->value,
+                            ])
 
-                            Forms\Components\MarkdownEditor::make('notes')
-                                ->columnSpanFull()
-
-                        ])->columns(2),
+                        ])->columns(4),
 
                     Forms\Components\Wizard\Step::make('Order Items')
                         ->schema([
-                            Forms\Components\Repeater::make('items')
-                                ->relationship()
-                                ->schema([
+                            Forms\Components\TextInput::make('download_data')
+                            ->label('License'),
+                            // Forms\Components\Repeater::make('items')
+                            //     ->relationship()
+                            //     ->schema([
 
-                                    Forms\Components\Select::make('product_id')
-                                    ->label('Products')
-                                    ->options(Product::query()->pluck('name','id'))
-                                    ->required()
-                                    ->reactive()
-                                    ->afterStateUpdated(fn ($state, Forms\Set $set) => 
-                                    $set('unit_price', Product::find($state)?->price ?? 0)),
+                            //         Forms\Components\Select::make('product_id')
+                            //         ->label('Products')
+                            //         ->options(Product::query()->pluck('name','id'))
+                            //         ->required()
+                            //         ->reactive()
+                            //         ->afterStateUpdated(fn ($state, Forms\Set $set) => 
+                            //         $set('unit_price', Product::find($state)?->price ?? 0)),
 
-                                Forms\Components\TextInput::make('quantity')
-                                    ->numeric()
-                                    ->live()
-                                    ->dehydrated()
-                                    ->default(1)
-                                    ->required(),
+                            //     Forms\Components\TextInput::make('quantity')
+                            //         ->numeric()
+                            //         ->live()
+                            //         ->dehydrated()
+                            //         ->default(1)
+                            //         ->required(),
 
-                                Forms\Components\TextInput::make('unit_price')
-                                    ->label('Unit Price')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->numeric()
-                                    ->required(),
+                            //     Forms\Components\TextInput::make('unit_price')
+                            //         ->label('Unit Price')
+                            //         ->disabled()
+                            //         ->dehydrated()
+                            //         ->numeric()
+                            //         ->required(),
                                 
-                                Forms\Components\Placeholder::make('total_price')
-                                    ->label('Total Price')
-                                    ->content(fn ($get)=>$get('quantity') * $get('unit_price'))
-                                    ->reactive(),
+                            //     Forms\Components\Placeholder::make('total_price')
+                            //         ->label('Total Price')
+                            //         ->content(fn ($get)=>$get('quantity') * $get('unit_price'))
+                            //         ->reactive(),
 
-                                ])->columns(4)
+                            //     ])->columns(4)
                         ])
                 ])->columnSpanFull()
             ]);
@@ -115,6 +124,8 @@ class OrderResource extends Resource
                     ->label('#')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('product.name')
+                    ->label("Product"),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date')
                     ->date(),
@@ -127,6 +138,8 @@ class OrderResource extends Resource
                     })
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('customer.email')
+                    ->label("Customer"),
                 // Tables\Columns\TextColumn::make('customer.name')
                 //     ->sortable()
                 //     ->searchable()

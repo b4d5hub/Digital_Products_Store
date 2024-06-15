@@ -13,6 +13,9 @@ class LatestOrders extends BaseWidget
 
     protected static ?int $sort = 2;
 
+    protected static bool $isLazy = false;
+
+
     // protected int | string | array $columnSpan = 'full';
     
     public function table(Table $table): Table
@@ -22,9 +25,9 @@ class LatestOrders extends BaseWidget
             ->defaultPaginationPageOption(3)
             ->defaultSort('created_at','desc')
             ->columns([
-                Tables\Columns\TextColumn::make('number')
+                Tables\Columns\TextColumn::make('order_number')
                 ->label('Order Number'),
-                Tables\Columns\TextColumn::make('customer.name'),
+                // Tables\Columns\TextColumn::make('customer.email'),
                 Tables\Columns\TextColumn::make('status')
                     ->color(fn (string $state): string => match ($state) {
                         'Declined' => 'danger',

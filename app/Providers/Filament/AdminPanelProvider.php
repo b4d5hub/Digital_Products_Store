@@ -51,7 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Store Settings')
-                    ->url('/dashboard/store-settings')
+                    ->url('/dashboard/store-vars')
                     ->icon('heroicon-o-cog-6-tooth'),
                 // MenuItem::make()
                 //     ->label('Account Settings')

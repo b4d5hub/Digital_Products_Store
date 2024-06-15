@@ -12,6 +12,9 @@ class OrdersChart extends ChartWidget
     protected static ?string $heading = 'Orders Statistics';
 
     protected static ?int $sort =2;
+    
+    protected static bool $isLazy = false;
+
 
     protected function getData(): array
     {

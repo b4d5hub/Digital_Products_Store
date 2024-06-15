@@ -133,8 +133,8 @@ class ProductResource extends Resource
                     Forms\Components\Section::make('Associations')
                         ->schema([
                             Forms\Components\Select::make('categories')
-                                ->relationship('categories','name')
-                                ->required(),
+                                // ->required()
+                                ->relationship('categories','name'),
                             // Forms\Components\Select::make('categories')
                             //     ->relationship('categories','name')
                             //     ->multiple(),

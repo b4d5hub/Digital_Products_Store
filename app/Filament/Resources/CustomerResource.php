@@ -43,6 +43,11 @@ class CustomerResource extends Resource
                             ->required()
                             ->email()
                             ->unique(ignoreRecord:true),
+                        Forms\Components\TextInput::make('ip')
+                            ->label('IP Address'),
+                        Forms\Components\TextInput::make('useragent')
+                            ->label('User-Agent')
+                            ->columnSpanFull(),
                         // Forms\Components\TextInput::make('phone')
                         //     ->maxValue(50),
                         // Forms\Components\DatePicker::make('date_of_birth')
@@ -79,7 +84,8 @@ class CustomerResource extends Resource
                     ->sortable()
                     ->searchable(),            
                 Tables\Columns\TextColumn::make('useragent')
-                    ->label('User-Agent'),             
+                    ->label('User-Agent')
+                    ->limit(50),             
                 // Tables\Columns\TextColumn::make('date_of_birth')
                 //     ->sortable(),                    
             ])

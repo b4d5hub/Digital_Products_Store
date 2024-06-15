@@ -21,8 +21,13 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function items(){
-        return $this->hasMany(OrderItem::class);
+    // public function items(){
+    //     return $this->hasMany(OrderItem::class);
+    // }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     // protected static function boot()
@@ -47,8 +52,8 @@ class Order extends Model
             if (!$receiver) {
                 $receiver = User::first(); // Retrieve the first user from the users table
             }
-            $orderNumber = $order->number;
-            $title = "Order Number #$orderNumber Completed";
+            $orderNumber = $order->order_number;
+            $title = "New Order #$orderNumber Created";
 
             Notification::make()
                 ->title($title)

@@ -103,7 +103,7 @@ class StoreVars extends Page
             ->success()
             ->send();
 
-        return redirect()->route('filament.admin.pages.store-vars');
+        return redirect()->back();
     }
 
 }
