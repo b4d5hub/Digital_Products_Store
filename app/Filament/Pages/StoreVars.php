@@ -22,6 +22,7 @@ class StoreVars extends Page
     public $secondary_color;
     public $text_dark;
     public $text_light;
+    public $terms_of_use;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog';
     protected static string $view = 'filament.pages.store-vars';
@@ -40,6 +41,12 @@ class StoreVars extends Page
         $this->secondary_color = $settings['secondary_color'] ?? '';
         $this->text_dark = $settings['text_dark'] ?? '';
         $this->text_light = $settings['text_light'] ?? '';
+        $this->terms_of_use = StoreSetting::query()
+            ->where('name', 'like', 'terms_of_use_%')
+            ->orderBy('name')
+            ->pluck('value')
+            ->map(fn (string $value) => base64_decode($value, true) ?: '')
+            ->implode('');
     }
 
     protected function getFormSchema(): array
@@ -82,6 +89,14 @@ class StoreVars extends Page
                     ->required()
                     ->default($this->text_light),
             ])->columns(2),
+            Forms\Components\Section::make('Terms of Use')
+                ->description('This text is shown on the public Terms of Use page. Line breaks are preserved.')
+                ->schema([
+                    Forms\Components\Textarea::make('terms_of_use')
+                        ->rows(16)
+                        ->maxLength(12000)
+                        ->columnSpanFull(),
+                ]),
 
         ];
     }
@@ -96,6 +111,15 @@ class StoreVars extends Page
             StoreSetting::updateOrCreate(['name' => 'secondary_color'], ['value' => $this->secondary_color]);
             StoreSetting::updateOrCreate(['name' => 'text_dark'], ['value' => $this->text_dark]);
             StoreSetting::updateOrCreate(['name' => 'text_light'], ['value' => $this->text_light]);
+
+            StoreSetting::where('name', 'like', 'terms_of_use_%')->delete();
+
+            foreach (str_split((string) $this->terms_of_use, 180) as $index => $chunk) {
+                StoreSetting::create([
+                    'name' => sprintf('terms_of_use_%04d', $index),
+                    'value' => base64_encode($chunk),
+                ]);
+            }
         });
 
         Notification::make()

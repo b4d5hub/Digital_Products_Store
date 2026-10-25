@@ -29,6 +29,8 @@ Route::get('/', function () {
     return view('welcome', ['products' => $products]);
 })->name('home');
 
+Route::view('/terms', 'terms')->name('terms');
+
 Route::get('/product/{slug}', [ProductController::class, 'index']);
 
 // Route::get('/successtest', function () {

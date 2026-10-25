@@ -8,7 +8,7 @@
         </a>
       </div>
       <div class="items-box">
-        <a href="/terms.html" class="term-logo">
+        <a href="{{ route('terms') }}" class="term-logo">
           <img src="/frontend1/img/terms-logo.svg" alt="img: terms of use">
           <p class="terms-text">Terms of use</p>
         </a>
