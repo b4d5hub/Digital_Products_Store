@@ -8,8 +8,6 @@ use Illuminate\Support\ServiceProvider;
 use App\Models\SmtpSetting;
 use Illuminate\Support\Facades\Schema;
 
-
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -25,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $StoreSettings = StoreSetting::pluck('value', 'name')->toArray();
+        $StoreSettings = Schema::hasTable('store_settings')
+            ? StoreSetting::pluck('value', 'name')->toArray()
+            : [];
+
         View::share('StoreSettings', $StoreSettings);
     }
 }
