@@ -9,22 +9,28 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request, $slug){
-        $product = Product::where('slug', $slug)->firstOrFail();
-        // $buyerIp = $request->header('X-Forwarded-For') ? explode(',', $request->header('X-Forwarded-For'))[0] : $request->ip();
-        // $buyerUserAgent = $request->header('User-Agent');
-        // dd($buyerIp, $buyerUserAgent);
+    public function index(Request $request, $slug)
+    {
+        $product = Product::query()
+            ->where('slug', $slug)
+            ->where('is_visible', true)
+            ->firstOrFail();
+
         return view('product', ['product' => $product]);
     }
 
-    public function collection($slug){
-        $category = Category::where('slug', $slug)->firstOrFail();
-        $products = $category->products()->orderBy('created_at', 'DESC')->paginate(6);
-        // $product = Product::where('slug', $slug)->firstOrFail();
+    public function collection($slug)
+    {
+        $category = Category::query()
+            ->where('slug', $slug)
+            ->where('is_visible', true)
+            ->firstOrFail();
+
+        $products = $category->products()
+            ->where('is_visible', true)
+            ->latest()
+            ->paginate(6);
+
         return view('welcome', ['products' => $products]);
     }
-
-    // public function index(){
-    //     return view('product');
-    // }
 }

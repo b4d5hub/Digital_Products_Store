@@ -9,18 +9,41 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaypalController extends Controller
 {
     public function paypal(Request $request)
     {
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'max:255'],
+            'product_id' => ['required', 'integer'],
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
 
-        // Store the previous URL before redirecting to PayPal
+        $product = Product::query()
+            ->whereKey($validated['product_id'])
+            ->where('is_visible', true)
+            ->firstOrFail();
+
+        if ($validated['quantity'] > $product->quantity) {
+            throw ValidationException::withMessages([
+                'quantity' => 'The requested quantity is no longer available.',
+            ]);
+        }
+
+        $quantity = (int) $validated['quantity'];
+        $unitPrice = (float) $product->price;
+        $totalPrice = number_format($unitPrice * $quantity, 2, '.', '');
+
         session()->put('url.intended', URL::previous());
+
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
-        $paypalToken = $provider->getAccessToken();
+        $provider->getAccessToken();
+
         $response = $provider->createOrder([
             "intent" => "CAPTURE",
             "application_context" => [
@@ -29,68 +52,55 @@ class PaypalController extends Controller
             ],
             "purchase_units" => [
                 [
-                    "name" => $request->product_name,
-                    "quantity" => $request->quantity,
-                    "category" => "DIGITAL_GOODS", // OR 'DONATION' OR 'PHYSICAL_GOODS'
+                    "name" => $product->name,
+                    "quantity" => $quantity,
+                    "category" => "DIGITAL_GOODS",
                     "amount" => [
                         "currency_code" => "USD",
-                        "value" => $request->price * $request->quantity,
+                        "value" => $totalPrice,
                     ],
-                    "shipping_preference" => "NO_SHIPPING", // Set the shipping preference here
+                    "shipping_preference" => "NO_SHIPPING",
                 ],
             ]
         ]);
-        // dd($response);
-        if(isset($response['id']) && $response['id']!=null) {
-            foreach($response['links'] as $link) {
+
+        if (isset($response['id'])) {
+            foreach ($response['links'] as $link) {
                 if($link['rel'] === 'approve') {
-                    // Store necessary data in the session
-                    session()->put('product_name', $request->product_name);
-                    session()->put('product_id', $request->product_id);
-                    session()->put('quantity', $request->quantity);
-                    session()->put('price', $request->price);
-                    session()->put('email', $request->email);
+                    session()->put('product_id', $product->id);
+                    session()->put('quantity', $quantity);
+                    session()->put('email', $validated['email']);
 
-
-                    $quantity = session()->get('quantity');
-                    $productId = session()->get('product_id');
-                    $price = session()->get('price');
-                    $downloaddata = Product::where('id', $productId)->value('digital_item');
-                    
-                    // Get buyer's IP address and user agent 
-                    $customerEmail = session()->get('email');
                     $buyerIp = $request->header('X-Forwarded-For') ? explode(',', $request->header('X-Forwarded-For'))[0] : $request->ip();
                     $buyerUserAgent = $request->header('User-Agent');
 
-                    // Find or create the customer
                     $customer = Customer::firstOrCreate(
-                        ['email' => $customerEmail], // Search criteria
-                        ['ip' => $buyerIp, 'useragent' => $buyerUserAgent] // Attributes to fill on creation
+                        ['email' => $validated['email']],
+                        ['ip' => $buyerIp, 'useragent' => $buyerUserAgent]
                     );
                     
-                    // Create new order Pending
                     $order = new Order;
                     $order->customer_id = $customer->id;
-                    $order->product_id = $productId; // Assuming a static product id or fetch from session if dynamic
-                    $order->order_number = uniqid('order_'); // or any other logic to generate order number
+                    $order->product_id = $product->id;
+                    $order->order_number = (string) Str::uuid();
                     $order->status = 'Pending';
                     $order->quantity = $quantity;
-                    $order->unit_price = $price; // Calculating unit price
-                    // Zid paypal_transaction_id f table orders ozid lwebhook 3la 7sab disputes fppl
-                    // $order->paypal_transaction_id = $response['purchase_units'][0]['payments']['captures'][0]['id'];
+                    $order->unit_price = $unitPrice;
                     $order->notes = 'Payment made via PayPal';
-                    $order->download_data = $downloaddata;
+                    $order->download_data = $product->digital_item;
                     $order->download_token = null;
                     $order->save();
                     
-                    session()->put('order_id', $order->id); // Store order ID for later use
+                    session()->put('order_id', $order->id);
 
                     return redirect()->away($link['href']);
                 }
             }
-        } else {
-            return redirect()->route('cancel');
         }
+
+        return redirect()
+            ->route('checkout', ['slug' => $product->slug])
+            ->with('message', 'PayPal could not start this checkout. Please try again.');
     }
 
 
@@ -98,91 +108,86 @@ class PaypalController extends Controller
 
     public function success(Request $request)
     {
-    $provider = new PayPalClient;
-    $provider->setApiCredentials(config('paypal'));
-    $paypalToken = $provider->getAccessToken();
-    $response = $provider->capturePaymentOrder($request->token);
-    
-    if(isset($response['status']) && $response['status'] == 'COMPLETED') {
-    
-    // Fetch session data
-    // $productName = session()->get('product_name');
-    // $customerEmail = $request->email; // assuming the email is posted from the form
-     
-    $customerEmail = session()->get('email');
-    $quantity = session()->get('quantity');
-    $totalPrice = $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'];
+        $request->validate(['token' => ['required', 'string']]);
 
+        $order = Order::find(session('order_id'));
 
-    // Edit order status
-    $orderId = session()->get('order_id');
-    $order = Order::find($orderId);
-    $order->status = 'Completed';
-    $order->unit_price = $totalPrice / $quantity; // Calculating unit price
-    $order->download_token = md5($order->product_id . $order->customer_id);
-    $order->save();
+        if (! $order) {
+            return redirect()->route('home')->with('message', 'Your checkout session has expired.');
+        }
 
-    // Send payment completed email
-    Mail::to($customerEmail)->send(new OrderCompleted($order));
+        if ($order->status === 'Completed') {
+            return $this->deliveryRedirect($order);
+        }
 
-    
-    // // Create order items
-    // $orderItem = new OrderItem;
-    // $orderItem->order_id = $order->id;
-    // $orderItem->product_id = $productId; // Assuming a static product id or fetch from session if dynamic
-    // $orderItem->quantity = $quantity;
-    // $orderItem->unit_price = $totalPrice / $quantity; // Calculating unit price
-    // $orderItem->save();
-    
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+        $provider->getAccessToken();
+        $response = $provider->capturePaymentOrder($request->token);
 
-    // Clear session data
-    session()->forget('product_id');
-    session()->forget('product_name');
-    session()->forget('quantity');
-    
-    // // Pass product description to success route
-    $routeParameters = [
-        'order_number' => $order->order_number,
-        'orderTimestamp' => strtotime($order->created_at),
-        'download_token' => $order->download_token
-    ];
-    
-    // session()->flash('successmessage', 'Payment is COMPLETED - Check your e-mail bla bla.');
-    // return redirect()->route('successtest', $routeParameters);
+        $capturedTotal = data_get($response, 'purchase_units.0.payments.captures.0.amount.value');
+        $expectedTotal = number_format($order->unit_price * $order->quantity, 2, '.', '');
 
+        if (($response['status'] ?? null) !== 'COMPLETED' || ! $capturedTotal || ! hash_equals($expectedTotal, number_format((float) $capturedTotal, 2, '.', ''))) {
+            $order->status = 'Declined';
+            $order->save();
 
-    // return "Payment is COMPLETED";
-    return redirect()->route('successtest', $routeParameters);
-    } else {
-    return redirect()->route('cancel');
-    }
+            return redirect()
+                ->route('checkout', ['slug' => $order->product->slug])
+                ->with('message', 'Payment could not be verified. Please try again.');
+        }
+
+        $order->status = 'Completed';
+        $order->download_token = Str::random(64);
+        $order->save();
+
+        try {
+            Mail::to(session('email'))->send(new OrderCompleted($order));
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
+        return $this->deliveryRedirect($order);
     }
     
     public function cancel()
     {
-        // Flash a message to the session
-        session()->flash('message', 'Payment is CANCELLED.');
-        $orderId = session()->get('order_id');
-        $order = Order::find($orderId);
-        $order->status = 'Declined';
-        $order->save();
-    
+        $order = Order::find(session('order_id'));
 
-        // Redirect back to the previous page
-        return redirect()->intended();
+        if (! $order) {
+            return redirect()->route('home')->with('message', 'Payment was cancelled.');
+        }
+
+        if ($order->status === 'Pending') {
+            $order->status = 'Declined';
+            $order->save();
+        }
+
+        return redirect()
+            ->route('checkout', ['slug' => $order->product->slug])
+            ->with('message', 'Payment was cancelled.');
     }
 
     public function deliver(Request $request, $order_number, $orderTimestamp, $download_token)
     {
         $order = Order::where('download_token', $download_token)
         ->where('order_number', $order_number)
-        // ->where('created_at', date($orderTimestamp))
+        ->where('status', 'Completed')
         ->firstOrFail();
         
         return view('success', [
             'order' => $order,
             'order_number' => $order->order_number,
             'test' => $orderTimestamp
+        ]);
+    }
+
+    private function deliveryRedirect(Order $order)
+    {
+        return redirect()->route('successtest', [
+            'order_number' => $order->order_number,
+            'orderTimestamp' => strtotime($order->created_at),
+            'download_token' => $order->download_token,
         ]);
     }
 

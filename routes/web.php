@@ -4,7 +4,6 @@ use App\Filament\Pages\StoreVars;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProfileController;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
@@ -22,17 +21,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', static fn () => response()->json(['status' => 'ok']));
 
 Route::get('/', function () {
-    $products = Product::orderBy('created_at','DESC')->paginate(6);
+    $products = Product::query()
+        ->where('is_visible', true)
+        ->latest()
+        ->paginate(6);
+
     return view('welcome', ['products' => $products]);
 })->name('home');
-
-Route::get('/notify', function () {
-    $receiver = auth()->user();
-    \Filament\Notifications\Notification::make()
-        ->title($receiver->name)
-        ->sendToDatabase($receiver);
-    dd('Notification Sent');
-})->middleware('auth');
 
 Route::get('/product/{slug}', [ProductController::class, 'index']);
 

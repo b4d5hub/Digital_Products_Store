@@ -47,12 +47,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function plan()
     {
-        return $this->belongsto(Plan::class);
+        return $this->belongsTo(Plan::class);
     }
-
     public function stores()
     {
-        return $this->hasMany(store::class);
+        return $this->hasMany(Store::class);
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="product-landing-purchase-iteminfo">
                                     <p>Delivery Type</p>
-                                    <span>{{ $product->type = 'Downloadable' ? 'Digital File' : 'Service' }}</span>
+                                    <span>{{ $product->type === 'Downloadable' ? 'Digital File' : 'Service' }}</span>
                                 </div>
                                 <div class="product-landing-purchase-iteminfo">
                                     <p>In Stock</p>

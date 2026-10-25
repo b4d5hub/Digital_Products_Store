@@ -7,10 +7,20 @@ use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
-    public function index(Request $request, $slug){
-        $product = Product::where('slug', $slug)->firstOrFail();
-        // return view('checkout', ['product' => $product]);
-        $quantity = $request->query('purchase_qty', 1); // Default to 1 if not provided
+    public function index(Request $request, $slug)
+    {
+        $product = Product::query()
+            ->where('slug', $slug)
+            ->where('is_visible', true)
+            ->firstOrFail();
+
+        abort_if($product->quantity < 1, 404);
+
+        $validated = $request->validate([
+            'purchase_qty' => ['nullable', 'integer', 'min:1', "max:{$product->quantity}"],
+        ]);
+
+        $quantity = $validated['purchase_qty'] ?? 1;
         $totalPrice = $product->price * $quantity;
 
         return view('checkout', [
