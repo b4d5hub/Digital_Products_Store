@@ -1,16 +1,14 @@
 <?php
 
-namespace AppModels;
+namespace App\Models;
 
-// use IlluminateContractsAuthMustVerifyEmail;
-use FilamentModelsContractsFilamentUser;
-use FilamentPanel;
-use IlluminateDatabaseEloquentFactoriesHasFactory;
-use IlluminateFoundationAuthUser as Authenticatable;
-use IlluminateNotificationsNotifiable;
-use LaravelSanctumHasApiTokens;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -49,14 +47,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsto(Plan::class);
     }
-
     public function stores()
     {
         return $this->hasMany(store::class);
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return $this->email === 'admin@ouajih.com';
     }
 }
