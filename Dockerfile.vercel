@@ -51,6 +51,7 @@ ENV PORT=80 \
     APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
+    MAIL_MAILER=log \
     CACHE_STORE=array \
     QUEUE_CONNECTION=sync
 
