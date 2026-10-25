@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/health', static fn () => response()->json(['status' => 'ok']));
+
 Route::get('/', function () {
     $products = Product::orderBy('created_at','DESC')->paginate(6);
     return view('welcome', ['products' => $products]);
