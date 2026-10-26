@@ -5,7 +5,6 @@
         <div class="main-container">
             <div class="main-content">
                 <div class="titles-group">
-                    <p class="chime-terms-title">{{ $StoreSettings['store_name'] ?? 'Store' }}</p>
                     <h1 class="terms-of-servise-title">Terms of Use</h1>
                 </div>
 
