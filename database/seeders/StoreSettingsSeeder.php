@@ -13,12 +13,16 @@ class StoreSettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        StoreSetting::updateOrCreate(['name' => 'store_name'], ['value' => 'My Store']);
-        StoreSetting::updateOrCreate(['name' => 'currency'], ['value' => 'USD']);
-        StoreSetting::updateOrCreate(['name' => 'logo'], ['value' => null]);
-        StoreSetting::updateOrCreate(['name' => 'primary_color'], ['value' => '#090b12']);
-        StoreSetting::updateOrCreate(['name' => 'secondary_color'], ['value' => '#1c1e25']);
-        StoreSetting::updateOrCreate(['name' => 'text_dark'], ['value' => '#000']);
-        StoreSetting::updateOrCreate(['name' => 'text_light'], ['value' => '#fff']);
+        foreach ([
+            'store_name' => 'My Store',
+            'currency' => 'USD',
+            'logo' => '',
+            'primary_color' => '#0F172A',
+            'secondary_color' => '#1E293B',
+            'text_dark' => '#0F172A',
+            'text_light' => '#F8FAFC',
+        ] as $name => $value) {
+            StoreSetting::firstOrCreate(['name' => $name], ['value' => $value]);
+        }
     }
 }

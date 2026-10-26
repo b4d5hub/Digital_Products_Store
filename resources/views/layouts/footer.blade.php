@@ -2,7 +2,7 @@
     <div class="container">
       <div class="footer-content">
         <div class="copyright-block">
-          <p class="copyright-text">{{ $StoreSettings['store_name'] }} © Copyright 2023{{ now()->year > 2023 ? '–' . now()->year : '' }}</p>
+          <p class="copyright-text">{{ $StoreSettings['store_name'] }} © Copyright {{ now()->year }}</p>
         </div>
         <div class="logo-box">
           <a href="/" class="logo">

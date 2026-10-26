@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             StoreSettingsSeeder::class,
+            DemoCatalogSeeder::class,
         ]);
     }
 }
