@@ -1055,12 +1055,17 @@ img {
 
 @media (max-width: 940px) {
     .category-button {
-        justify-content: flex-start;
         overflow-x: auto;
         overflow-y: hidden;
         padding-bottom: 24px;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x proximity;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .category-button::-webkit-scrollbar {
+        display: none;
     }
 
     .category-button ul {
@@ -1070,6 +1075,7 @@ img {
         margin: 0;
         padding: 0 4px;
         flex-wrap: nowrap;
+        justify-content: center;
         gap: 12px;
     }
 
