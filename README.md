@@ -5,9 +5,7 @@ Laravel storefront for downloadable digital products, with a responsive public c
 **Live demo:** [digital-products-store-smoky.vercel.app](https://digital-products-store-smoky.vercel.app/)
 
 <p align="center">
-  <img src="public/storage/form-attachments/notion-workspace-planner.png" width="30%" alt="Notion Workspace Planner demo cover">
-  <img src="public/storage/form-attachments/budget-dashboard.png" width="30%" alt="Personal Budget Dashboard demo cover">
-  <img src="public/storage/form-attachments/social-media-template-kit.png" width="30%" alt="Social Media Template Kit demo cover">
+  <img src="docs/images/storefront.png" alt="Digital Products Store storefront screenshot" width="900">
 </p>
 
 ## Features
